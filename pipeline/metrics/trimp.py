@@ -1,4 +1,5 @@
 """Banister TRIMP (Training Impulse) calculation."""
+
 import math
 
 _MALE_K, _MALE_B = 0.64, 1.92

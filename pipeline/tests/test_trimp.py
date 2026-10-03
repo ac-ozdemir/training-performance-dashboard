@@ -42,11 +42,14 @@ def test_zero_duration_is_zero():
     assert banister_trimp(duration_min=0, avg_hr=150, resting_hr=50, max_hr=190) == 0.0
 
 
-@pytest.mark.parametrize("bad_kwargs", [
-    {"duration_min": -1, "avg_hr": 150, "resting_hr": 50, "max_hr": 190},
-    {"duration_min": 40, "avg_hr": 150, "resting_hr": 190, "max_hr": 190},
-    {"duration_min": 40, "avg_hr": 150, "resting_hr": 200, "max_hr": 190},
-])
+@pytest.mark.parametrize(
+    "bad_kwargs",
+    [
+        {"duration_min": -1, "avg_hr": 150, "resting_hr": 50, "max_hr": 190},
+        {"duration_min": 40, "avg_hr": 150, "resting_hr": 190, "max_hr": 190},
+        {"duration_min": 40, "avg_hr": 150, "resting_hr": 200, "max_hr": 190},
+    ],
+)
 def test_invalid_inputs_raise(bad_kwargs):
     with pytest.raises(ValueError):
         banister_trimp(**bad_kwargs)

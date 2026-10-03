@@ -1,4 +1,5 @@
 """Daniels & Gilbert VDOT estimation from a single race/time-trial effort."""
+
 import math
 
 

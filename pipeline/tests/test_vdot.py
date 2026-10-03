@@ -25,12 +25,15 @@ def test_faster_same_distance_gives_higher_vdot():
     assert faster > slower
 
 
-@pytest.mark.parametrize("bad_kwargs", [
-    {"distance_m": 0, "duration_s": 1200},
-    {"distance_m": -100, "duration_s": 1200},
-    {"distance_m": 5000, "duration_s": 0},
-    {"distance_m": 5000, "duration_s": -1},
-])
+@pytest.mark.parametrize(
+    "bad_kwargs",
+    [
+        {"distance_m": 0, "duration_s": 1200},
+        {"distance_m": -100, "duration_s": 1200},
+        {"distance_m": 5000, "duration_s": 0},
+        {"distance_m": 5000, "duration_s": -1},
+    ],
+)
 def test_invalid_inputs_raise(bad_kwargs):
     with pytest.raises(ValueError):
         vdot(**bad_kwargs)
