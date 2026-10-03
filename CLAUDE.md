@@ -1,78 +1,90 @@
-# Proje: Data-Driven Sports Coaching (Strava Veri Pipeline'ı + Dashboard)
+# Proje: Training Performance Dashboard (Strava Veri Pipeline'ı + Dashboard)
+
+> Eski adları: "Data-Driven Sports Coaching" → "Sports Performance Dashboard" → **Training Performance
+> Dashboard** (2026-10-03).
 
 ## Amaç
-Ahmet Can Özdemir'in ("Acoz") kendi Strava aktivite verisi (koşu, CrossFit vb.) üzerinden
-veri odaklı bir antrenman/performans dashboard'u kurması. Proje tamamlandığında
-[Portfolio_Website_Project](../Portfolio_Website_Project) sitesinin Projeler bölümünde bir
-case study olarak sergilenecek — yani bu proje hem gerçek bir kişisel araç hem de iş
-başvurularında gösterilecek somut bir BI/data engineering örneği olacak.
+Ahmet Can Özdemir'in ("Acoz") kendi Strava aktivite verisi (koşu, CrossFit/HIIT) üzerinden veri odaklı
+bir antrenman/performans dashboard'u. Proje [Portfolio_Website_Project](../Portfolio_Website_Project)
+sitesinin Projeler bölümünde case study olarak sergilenecek — hem gerçek bir kişisel araç hem de iş
+başvurularında gösterilecek uçtan uca bir BI/data engineering örneği.
 
 ## Kullanıcı Bağlamı
-- Ahmet, TUSAŞ'ta Senior Data Analyst — Power BI/Grafana, KPI, otomatik raporlama deneyimi var,
-  teknoloji sektörüne (Data/BI/Product Analyst) geçiş hedefliyor (bkz. Portfolio_Website_Project/CLAUDE.md)
-- Git/GitHub'a yeni tanışıyor — adımlar sade ve öğretici anlatılmalı
-- Maraton koşucusu (İstanbul Maratonu 2025, 3:30) — projenin gerçek verisi kendi koşu/antrenman geçmişi olacak
-- **Önemli:** Strava Developer portalında API app kaydı ve GCP faturalama hesabı açma gibi adımlar
-  SADECE Ahmet'in kendi hesabıyla yapılabilir. Claude bu adımlarda rehberlik eder, ekran görüntüsü/
-  komut bazlı yardımcı olur ama işlemi bizzat gerçekleştiremez.
+- Ahmet, TUSAŞ'ta Senior Data Analyst; teknoloji sektörüne (Data/BI/Product Analyst) geçiş hedefliyor
+- Git/GitHub'a yeni — adımlar sade ve öğretici anlatılmalı
+- Maraton koşucusu (İstanbul Maratonu 2025, 3:30)
+- Strava/GCP/GitHub hesap işlemleri (app kaydı, faturalama, repo oluşturma) SADECE Ahmet'in hesabıyla
+  yapılır; Claude rehberlik eder
 
-## Mimari (karar verildi — 2026-09-04)
-- **Platform:** GCP, **Always Free** katmanında kalacak şekilde kurulum
-- **Veri kaynağı:** Strava API (OAuth), batch load — tek bir Cloud Scheduler job'ı
-- **Depolama:** BigQuery — `activities` + `metrics` tabloları
-- **İşlem:** Cloud Functions (ingestion + günlük metrik hesaplama)
-- **Sırlar:** Secret Manager (Strava client id/secret/refresh token)
-- **Metrikler:** VO2max (Daniels VDOT formülü), TRIMP (Banister), ATL/CTL/TSB — saf fonksiyonlar,
-  unit test ile doğrulanacak
-- **Dashboard:** Next.js sayfası + Recharts — **Portfolio_Website_Project reposu içinde**, "projects"
-  grid'i altında bu projeye özel bir detay sayfası olarak (dashboard + case study aynı sayfada).
-  Portfolyo'nun tasarım diline (warm-neutral zemin + petrol mavisi `#2C6E8E`) uyumlu olacak.
-- **İkincil sunum katmanları (Faz 3):** Aynı BigQuery verisi üzerine Tableau Public (native
-  connector, herkese açık) ve Looker Studio (owner's credentials, ham veri gizli) — ikisi de ücretsiz
-- **GPS/rota verisi hiçbir sunum katmanında gösterilmeyecek** (gizlilik kararı)
+## Kod Standartları
+- `software-standards` skill'i (+ `references/python.md`, `references/nextjs.md`) bu projede varsayılan
+- `todoist` skill'i Todoist işlemlerinde taksonomi/etiket kuralları için
+- Lint/format: `ruff`; test: `pytest`; bağımlılıklar sürümü sabitlenmiş (`requirements-dev.txt`)
+- Commit: Conventional Commits, her anlamlı adımdan sonra
 
-## Faz Planı
-Kaynak: Todoist → "Side Projects" → **"Data-Driven Sports Coaching"** section'ı
-(projectId `6hQJcjr9826HXHmW`, sectionId `6hQJj3FjVxQc6rQW`). Bu dosya kopya değil, oradaki
-görevlerin özetidir — güncel/otoriter kaynak her zaman Todoist'tir.
+## Mimari (2026-09-04, güncelleme 2026-10-03)
+- **Platform:** GCP Always Free. Proje ID `training-performance-dashboard`, org `acozdemir1907-org`
+  (org'a dokunulmayacak), faturalama bağlı. Bölge `europe-west1`, BigQuery dataset'i EU
+- **Veri kaynağı:** Strava API (OAuth, scope `activity:read_all`). 2023-09-19'dan bu yana ~474 aktivite,
+  bunların ~%43'ünde nabız var
+- **İşlem:** Tek Cloud Function `daily_pipeline` → Strava'dan çek → BigQuery'ye MERGE (idempotent) →
+  metrikleri hesapla → dashboard verisini dışa aktar. Tek Cloud Scheduler job'ı, OIDC ile çağırır;
+  fonksiyon herkese açık değil
+- **Yetkiler:** Ayrı servis hesabı, en az yetki (sadece kendi dataset/secret/bucket'ı)
+- **Sırlar:** Secret Manager. Strava refresh token'ı değişebildiği için fonksiyon yenisini yeni secret
+  versiyonu olarak yazar. Yerelde `pipeline/.env` (gitignore + `chmod 600`)
+- **Depolama:** BigQuery `activities` (GPS/rota alanı yok) + `metrics` (günlük; dinlenme günleri 0 yük ile
+  tarih omurgası)
+- **Dashboard veri akışı:** Pipeline günlük, özetlenmiş `dashboard.json`'u herkese açık bir GCS
+  dosyasına yazar; portfolyodaki Next.js sayfası bunu okur. Sitede kimlik bilgisi yok
+- **Dashboard:** Next.js + Recharts, **Portfolio_Website_Project reposu içinde** proje detay sayfası
+  (dashboard + case study). Portfolyo tasarım dili (warm-neutral + petrol mavisi `#2C6E8E`).
+  "Powered by Strava" ibaresi zorunlu (Strava API şartı)
+- **Faz 3 sunum katmanı:** Looker Studio (owner's credentials, ham veri kapalı). Tableau Public bu
+  projenin parçası değil — ayrı "Tableau hands-on" task'ı, V1 sonrası
+- **GitHub:** Pipeline reposu public olacak
+- **GPS/rota verisi hiç depolanmaz** (gizlilik kararı)
 
-- **Faz 0 — Kurulum**
-  - [p1] GCP projesini kur (BigQuery, Cloud Functions, Secret Manager, Cloud Scheduler)
-  - [p2] Kullanıcı tarafı kurulumlar + Strava OAuth bağlantısı (Strava Developer app kaydı,
-    GCP faturalama hesabı, OAuth consent → koddan test)
-- **Faz 1 — Veri pipeline'ı**
-  - [p2] BigQuery şema tasarımı + ingestion Cloud Function (Strava hesabı başından itibaren
-    tüm geçmişin backfill'i)
-  - [p2] Metrik hesaplama fonksiyonları (unit test'li) + Cloud Scheduler ile günlük otomatik çalıştırma
-- **Faz 2 — Dashboard**
-  - [p3] Next.js dashboard sayfası + Recharts: 6 kart/grafik (VO2max & form özeti, CTL/ATL/TSB,
-    haftalık TRIMP, pace trendi, nabız trendi, mesafe trendi), genel/koşu/CrossFit filtreli
-  - [p3] Next.js proje detay sayfası (dashboard + case study) + son 12 haftayı döndüren API katmanı
-- **Faz 3 — Doğrulama ve yayın**
-  - [p3] Hesaplamaları kişisel referanslarla doğrula, Tableau Public + Looker Studio embed'lerini
-    kur, case study yazısını yaz ve yayına al
-- **V2 Backlog (şimdilik kapsam dışı)**
-  - [p4] Manuel wellness check-in + AI insight + Garmin-özel metrikler — n8n projesindeki
-    "veri çek → analiz et → AI ile insight üret" kalıbının buraya uyarlanması. Aynı beceri iki
-    projede tekrar edilmesin diye V1'e dahil edilmedi.
+## Metrikler
+- **TRIMP (Banister):** süre + ortalama nabız. Kişisel parametreler: dinlenik nabız 48 (Garmin 1 yıllık
+  ort.), max nabız ~185 (Strava'da gözlenen tavan; 210 HIIT ölçüm hatası sayıldı — Ahmet'in onayı
+  bekleniyor), cinsiyet erkek. Banister dayanıklılık sporu için tasarlandı; CrossFit/HIIT'te yaklaşık —
+  case study'de açıkça belirtilecek
+- **CTL/ATL/TSB:** 42/7 günlük EWMA, TSB = önceki günün CTL − ATL (TrainingPeaks konvansiyonu)
+- **VDOT (Daniels & Gilbert):** iki kaynak, grafikte farklı işaretlerle
+  - Yarışlar: Strava'da koşu tipi "Race" (`workout_type=1`) olanlar — başlığa "race" yazmaya gerek yok
+  - Interval'ler: başlığında "interval" geçen koşuların tekrar lap'leri — süresi 2.5–6 dk olan ve
+    aktivitenin medyan lap temposundan belirgin hızlı lap'ler (ısınma/toparlanma/soğuma elenir).
+    Interval temposu ≈ VO2max hızı varsayımıyla hesaplanır. Geçmiş interval'ler yeniden adlandırılmayacak
+- **Aktivite kategorileri:** Run/TrailRun/VirtualRun → koşu; HighIntensityIntervalTraining/Workout/
+  WeightTraining/Crossfit → CrossFit; diğerleri → genel
+
+## Faz Planı ve Durum
+Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** section'ı
+(projectId `6hQJcjr9826HXHmW`, sectionId `6hQJj3FjVxQc6rQW`). Güncel/otoriter kaynak Todoist'tir.
+
+- **Faz 0 — Kurulum:** ✅ Strava OAuth, ✅ GCP projesi + faturalama, ✅ repo hijyeni (README, ruff,
+  pinli bağımlılıklar). ⏳ API'ler, servis hesabı, Secret Manager, bütçe alarmı, GitHub remote
+- **Faz 1 — Veri pipeline'ı:** ✅ metrik fonksiyonları (26 test), ✅ BigQuery DDL. ⏳ ingestion + backfill,
+  interval lap ayrıştırma, metrik job'ı, JSON export, deploy (`deploy.sh`), Scheduler
+- **Faz 2 — Dashboard (4 Ekim):** Impeccable değerlendirmesi/kurulumu, monospace font kararı, Next.js
+  sayfası (6 kart/grafik: VO2max & form özeti, CTL/ATL/TSB, haftalık TRIMP, pace, nabız, mesafe;
+  genel/koşu/CrossFit filtreli)
+- **Faz 3 — Doğrulama ve yayın (11 Ekim haftası):** hesaplamaları kişisel referanslarla doğrula,
+  Looker Studio embed, case study
+- **V2 Backlog:** manuel wellness check-in + AI insight + Garmin-özel metrikler
 
 ## Çalışma Modeli
-Portfolio_Website_Project ile aynı prensipler:
-- Claude geliştirici + PM rolünü üstlenir, işin büyük kısmını fiilen yapar
-- **Karar noktası kullanıcıdır:** geri dönüşü zor veya zevk/tercih meselesi olan konularda
-  (üçüncü parti servis seçimi, dashboard'da hangi metriklerin öne çıkarılacağı, case study anlatımı vb.)
-  Claude seçenekleri kısa gerekçeleriyle sunar ve onay bekler
-- Saf teknik "nasıl" kararlarında (klasör yapısı, kütüphane detayları) Claude kendi kararını verip raporlar
-- **Tek seferde bir iş kalemi:** genel bir "devam et" onayı, arka arkaya birden fazla farklı görevi
-  sessizce uygulama izni olarak alınmaz — sıradaki görevi sun, onay al, uygula, sonra geç
-- Her anlamlı adımdan sonra kısa ve açıklayıcı commit mesajıyla commit atılmalı (Ahmet GitHub'a yeni tanışıyor)
+- Claude geliştirici + PM rolünde, işin büyük kısmını fiilen yapar
+- **Karar noktası Ahmet'tir:** geri dönüşü zor ya da zevk/tercih meselesi olan konularda seçenekler kısa
+  gerekçeyle sunulur, onay beklenir. Saf teknik "nasıl" kararlarını Claude verir ve raporlar
+- **Tek seferde bir iş kalemi:** sıradaki görevi sun, onay al, uygula, sonra geç
+- Tamamlanan görevler Todoist'te kapatılır (karar özeti açıklamaya), kısmi ilerleme yorum olarak düşülür
+- **Güvenlik:** secret'lar sohbete/çıktıya basılmaz, komut satırı argümanına değil stdin'e verilir;
+  yerel secret dosyaları `chmod 600`; public repoya push öncesi geçmişte secret taraması yapılır
 
-## Proje Takibi
-Görevler Todoist'te **"Side Projects" → "Data-Driven Sports Coaching"** section'ında tutulur
-(projectId `6hQJcjr9826HXHmW`, sectionId `6hQJj3FjVxQc6rQW`). Bir görev tamamlandığında Todoist'te
-işaretlenmeli; yeni iş kalemleri ortaya çıktığında oraya eklenmelidir.
-
-## Bir Sonraki Oturum İçin Not
-Şu an açık en yüksek öncelikli görev **Faz 0 → "GCP projesini kur"** (p1). Ondan sonra sırada
-Strava OAuth bağlantısı ve Faz 1 (BigQuery şema + ingestion) var. Telefon/Remote Control
-üzerinden çalışırken Strava/GCP hesap adımlarında Ahmet'in ekranından bilgi/onay istemek gerekecek.
+## Bir Sonraki Oturum İçin Not (2026-10-03 gece)
+4 Ekim hedefi: pipeline canlı + dashboard sayfası. Sıra: GitHub remote + push → GCP API'leri, servis
+hesabı, Secret Manager → ingestion + backfill → metrik job + JSON export → deploy + Scheduler →
+Impeccable değerlendirmesi → dashboard sayfası. Ahmet'ten beklenenler: max nabız onayı, bütçe alarmı
+onayı, geçmiş yarışları Strava'da "Race" tipine işaretleme.
