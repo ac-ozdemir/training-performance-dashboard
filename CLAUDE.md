@@ -120,7 +120,10 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
 Pipeline canlı, her gece 23:30'da çalışıyor; `dashboard.json` herkese açık
 (`https://storage.googleapis.com/training-performance-dashboard-public/dashboard.json`, 1 saat
 önbellek). Impeccable portfolyo reposunda kurulu; tasarım bağlamı portfolyodaki `PRODUCT.md` ve
-`DESIGN.md`. Sıradaki: Faz 2 — `/impeccable shape` ile dashboard + case study sayfasını planla
-(monospace font kararı dahil), sonra portfolyo reposunda kur (JSON şeması `pipeline/export/dashboard.py`,
-`schema_version: 1`). Portfolyoda 2 commit henüz push edilmedi. Not: git geçmişini yeniden yazan komutlar Claude Code auto mode'da engelli —
+`DESIGN.md`. Shape tamamlandı (2026-10-04): onaylı sayfa özeti Todoist'teki "[Faz 2] Sayfa planı"
+task'ının açıklamasında (Özet → Dashboard → Case study; odak Form & Fitness + TSB bölgeleri; tarih +
+kategori filtresi; rakamlar tabular-nums, mono sadece meta; veri paleti petrol tonları + tek sıcak
+kontrast). Sıradaki: "[Faz 2] Detay sayfası iskeleti + veri katmanı" — oturum portfolyo klasörüne
+taşınır, önce Impeccable surface brief + direction contract yazılır (code-led, concept-seed yok), JSON
+şeması `pipeline/export/dashboard.py` (`schema_version: 1`). Not: git geçmişini yeniden yazan komutlar Claude Code auto mode'da engelli —
 gerekirse Ahmet kendisi çalıştırır.
