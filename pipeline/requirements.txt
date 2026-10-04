@@ -1,0 +1,5 @@
+functions-framework==3.10.2
+google-cloud-bigquery==3.46.1
+google-cloud-secret-manager==2.31.0
+google-cloud-storage==3.16.0
+requests==2.34.2

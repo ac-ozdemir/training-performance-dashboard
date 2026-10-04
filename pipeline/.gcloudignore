@@ -1,0 +1,14 @@
+# Never upload local secrets or dev-only files with the function source.
+.env
+.env.*
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+tests/
+scripts/
+schema/
+requirements-dev.txt
+pyproject.toml
+.gitignore
+.gcloudignore
