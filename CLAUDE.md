@@ -107,6 +107,17 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
   Looker Studio embed, case study
 - **V2 Backlog:** manuel wellness check-in + AI insight + Garmin-özel metrikler
 
+## Hangi İş Hangi Klasörde (2026-10-04)
+- **Bu repo (Training_Performance_Dashboard_Project):** veri tarafı — pipeline, metrikler, GCP, deploy,
+  alarm, Faz 3 doğrulama, Looker Studio'nun BigQuery tarafı, README. Proje kararlarının ana kaydı bu
+  CLAUDE.md'dir
+- **Portfolio_Website_Project:** görünen taraf — dashboard + case study sayfası (Faz 2, case study metni).
+  Impeccable'ın skill'i ve hook'u yalnızca o klasörde açılan oturumda çalıştığı için arayüz işi orada,
+  ayrı sohbette yapılır; bu repoya gerektiğinde ek klasör erişimiyle bakılır
+- İki repo arasındaki sözleşme `dashboard.json` (`pipeline/export/dashboard.py`, `schema_version`).
+  Sayfa yeni bir alana ihtiyaç duyarsa değişiklik burada yapılır, sürüm numarası artırılır
+- Görevlerin tek doğru kaynağı Todoist; hangi klasörde çalışılırsa çalışılsın bu CLAUDE.md güncel tutulur
+
 ## Çalışma Modeli
 - Claude geliştirici + PM rolünde, işin büyük kısmını fiilen yapar
 - **Karar noktası Ahmet'tir:** geri dönüşü zor ya da zevk/tercih meselesi olan konularda seçenekler kısa
