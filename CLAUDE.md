@@ -98,7 +98,9 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
   hesapları, Secret Manager, repo hijyeni, GitHub public repo + push)
 - **Faz 1 — Veri pipeline'ı:** ✅ tamamlandı, 2026-10-04 canlıda (60 test). Ingestion + backfill,
   interval ayrıştırma, metrik job'ı, `dashboard.json` export, deploy, Scheduler
-- **Faz 2 — Dashboard (5 Ekim):** Impeccable değerlendirmesi/kurulumu, monospace font kararı, Next.js
+- **Faz 2 — Dashboard (5 Ekim):** ✅ Impeccable portfolyo reposuna kuruldu, `PRODUCT.md` + `DESIGN.md`
+  ("Warm Precision") yazıldı (2026-10-04). ⏳ `/impeccable shape` ile sayfa planı (monospace font kararı
+  dahil), Next.js
   sayfası (6 kart/grafik: VO2max & form özeti, CTL/ATL/TSB, haftalık TRIMP, pace, nabız, mesafe;
   genel/koşu/CrossFit filtreli)
 - **Faz 3 — Doğrulama ve yayın (11 Ekim haftası):** hesaplamaları kişisel referanslarla doğrula,
@@ -117,7 +119,8 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
 ## Bir Sonraki Oturum İçin Not (2026-10-04 akşam)
 Pipeline canlı, her gece 23:30'da çalışıyor; `dashboard.json` herkese açık
 (`https://storage.googleapis.com/training-performance-dashboard-public/dashboard.json`, 1 saat
-önbellek). Sıradaki: Faz 2 — Impeccable değerlendirmesi (kullanım alanı → kurulum), monospace font
-kararı, portfolyo reposunda dashboard + case study sayfası (JSON şeması `pipeline/export/dashboard.py`,
-`schema_version: 1`). Not: git geçmişini yeniden yazan komutlar Claude Code auto mode'da engelli —
+önbellek). Impeccable portfolyo reposunda kurulu; tasarım bağlamı portfolyodaki `PRODUCT.md` ve
+`DESIGN.md`. Sıradaki: Faz 2 — `/impeccable shape` ile dashboard + case study sayfasını planla
+(monospace font kararı dahil), sonra portfolyo reposunda kur (JSON şeması `pipeline/export/dashboard.py`,
+`schema_version: 1`). Portfolyoda 2 commit henüz push edilmedi. Not: git geçmişini yeniden yazan komutlar Claude Code auto mode'da engelli —
 gerekirse Ahmet kendisi çalıştırır.
