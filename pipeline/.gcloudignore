@@ -9,6 +9,7 @@ tests/
 scripts/
 schema/
 requirements-dev.txt
+deploy.sh
 pyproject.toml
 .gitignore
 .gcloudignore
