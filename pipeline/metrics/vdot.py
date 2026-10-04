@@ -36,3 +36,15 @@ def vdot(distance_m: float, duration_s: float) -> float:
     pct_vo2max = _percent_vo2max_from_duration(duration_min)
 
     return vo2 / pct_vo2max
+
+
+def vdot_from_interval_speed(speed_m_s: float) -> float:
+    """Estimate VDOT from the pace of a Daniels-style interval rep (3-5 min at ~vVO2max).
+
+    Assumes the rep was run at interval (I) pace, which Daniels defines as roughly the
+    velocity at VO2max — so VDOT is the oxygen cost of that velocity. Reps run easier
+    than true I pace will understate VDOT.
+    """
+    if speed_m_s <= 0:
+        raise ValueError("speed_m_s must be positive")
+    return _vo2_from_velocity(speed_m_s * 60)
