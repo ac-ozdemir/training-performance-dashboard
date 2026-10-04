@@ -24,7 +24,9 @@ def _row(day: str, name: str, category: str = "run", **overrides) -> dict:
 
 
 def _payload(rows: list[dict]) -> dict:
-    daily = build_daily_metrics(rows, ATHLETE, today=date(2026, 10, 5))
+    daily = build_daily_metrics(
+        rows, ATHLETE, today=date(2026, 10, 5), load_start=date(2026, 10, 1)
+    )
     return build_payload(rows, daily, generated_at=datetime(2026, 10, 5, tzinfo=UTC))
 
 
@@ -51,6 +53,12 @@ def test_race_name_is_kept_only_as_vdot_label():
     assert payload["vdot"] == [
         {"date": "2025-11-02", "vdot": 44.6, "source": "race", "label": "Istanbul Marathon 2025"}
     ]
+
+
+def test_daily_series_starts_where_load_series_starts():
+    payload = _payload([_row("2026-09-20", "Run"), _row("2026-10-02", "Run")])
+    assert payload["daily"][0]["date"] == "2026-10-01"
+    assert payload["activities"][0]["date"] == "2026-09-20"
 
 
 def test_pace_only_for_runs_and_attribution_present():

@@ -12,6 +12,7 @@ from google.cloud import bigquery
 from config import (
     ACTIVITIES_TABLE,
     ATHLETE,
+    LOAD_SERIES_START,
     METRICS_TABLE,
     SECRET_CLIENT_ID,
     SECRET_CLIENT_SECRET,
@@ -59,7 +60,9 @@ def run() -> dict:
 
     replace_table(bq, ACTIVITIES_TABLE, rows)
 
-    daily = build_daily_metrics(rows, ATHLETE, today=now.astimezone(LOCAL_TZ).date())
+    daily = build_daily_metrics(
+        rows, ATHLETE, today=now.astimezone(LOCAL_TZ).date(), load_start=LOAD_SERIES_START
+    )
     computed_at = now.isoformat()
     replace_table(bq, METRICS_TABLE, [{**day, "computed_at": computed_at} for day in daily])
 

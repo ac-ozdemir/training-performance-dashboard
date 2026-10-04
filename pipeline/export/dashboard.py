@@ -58,6 +58,7 @@ def build_payload(rows: list[dict], daily: list[dict], generated_at: datetime) -
                 "tsb": _round(day["tsb"]),
             }
             for day in daily
+            if day["ctl"] is not None
         ],
         "vdot": [
             {
