@@ -29,13 +29,18 @@ başvurularında gösterilecek uçtan uca bir BI/data engineering örneği.
   BigQuery dataset'i `training_performance` (EU), export bucket'ı
   `gs://training-performance-dashboard-public` (us-central1 — Cloud Storage ücretsiz kotası sadece ABD
   bölgelerinde; içerik zaten herkese açık özet JSON)
-- **Veri kaynağı:** Strava API (OAuth, scope `activity:read_all`). 2023-09-19'dan bu yana ~474 aktivite,
-  bunların ~%43'ünde nabız var
+- **Veri kaynağı:** Strava API (OAuth, scope `activity:read_all`). 2023-09-19'dan bu yana ~476 aktivite.
+  Nabız 2023–Eki 2025 arası neredeyse yok, Kasım 2025'ten beri neredeyse tam (arada nabızsız tekil
+  aktiviteler olabiliyor, ör. 2026-10-03 21 km)
 - **İşlem:** Tek Cloud Function `daily_pipeline` → Strava'dan tüm geçmişi çek (3 sayfa) → BigQuery'ye
   tam snapshot (WRITE_TRUNCATE load job; düzenlenen/silinen aktiviteleri de yakalar) → metrikleri
   hesapla → `dashboard.json`'u dışa aktar. Interval lap'leri bir kez çekilir, sonra BigQuery'den okunur.
-  Tek Cloud Scheduler job'ı, OIDC ile çağırır; fonksiyon herkese açık değil
-- **Yetkiler:** Servis hesapları `pipeline-runner` (fonksiyon) ve `scheduler-invoker` (sadece tetikleme).
+  Cloud Function `daily-pipeline` (gen2, python312, europe-west1, 512Mi, max 1 instance), Cloud Scheduler
+  job'ı `daily-pipeline` her gün 23:30 Europe/Istanbul, OIDC ile çağırır; kimliksiz çağrı 403.
+  Deploy: `pipeline/deploy.sh` (idempotent; `.gcloudignore` `.env`/test/script'leri dışarıda tutar)
+- **Yetkiler:** Servis hesapları `pipeline-runner` (fonksiyon), `scheduler-invoker` (sadece tetikleme,
+  fonksiyonda run.invoker) ve `function-builder` (build; yeni projelerde varsayılan compute hesabına
+  build yetkisi verilmiyor, `cloudbuild.builds.builder` rolüyle ayrı hesap).
   `pipeline-runner`: proje genelinde sadece `bigquery.jobUser` + `logging.logWriter`; dataset'te
   dataEditor, bucket'ta objectAdmin, 3 secret'ta accessor, refresh token secret'ında versionManager.
   Ahmet'in kullanıcısında yerel testler için bu hesabı taklit etme yetkisi (tokenCreator) var
@@ -64,13 +69,23 @@ başvurularında gösterilecek uçtan uca bir BI/data engineering örneği.
   yaklaşık — case study'de açıkça belirtilecek
 - **LTHR 165** (Ahmet'in testi, 2026-10): LTHR bazlı nabız bölgeleri ve Faz 3'te TRIMP'i hrTSS ile
   çapraz kontrol için kullanılabilir
-- **CTL/ATL/TSB:** 42/7 günlük EWMA, TSB = önceki günün CTL − ATL (TrainingPeaks konvansiyonu)
+- **Nabızsız aktiviteler:** yük olarak 0 sayılır, tahmin yapılmaz (Ahmet kararı, 2026-10-04)
+- **CTL/ATL/TSB:** 42/7 günlük EWMA, TSB = önceki günün CTL − ATL (TrainingPeaks konvansiyonu). Seri
+  **2025-11-01'den** başlar (`LOAD_SERIES_START`, nabız kapsamının başladığı tarih); başlangıç CTL/ATL'i
+  ilk 42/7 günün ortalama yüküyle doldurulur (sıfırdan yapay yükseliş olmasın diye). Export'taki günlük
+  seri de buradan başlar
 - **VDOT (Daniels & Gilbert):** iki kaynak, grafikte farklı işaretlerle
-  - Yarışlar: Strava'da koşu tipi "Race" (`workout_type=1`) olanlar — başlığa "race" yazmaya gerek yok
-  - Interval'ler: başlığında "interval" geçen koşuların tekrar lap'leri. Lap'ler en büyük hız
-    boşluğundan hızlı/yavaş gruba ayrılır; hızlı gruptaki 2.5–6 dk'lık lap'ler tekrar sayılır
-    (ısınma/toparlanma/soğuma elenir). Interval temposu ≈ VO2max hızı varsayımı; oturum değeri
-    tekrarların medyanı. Geçmiş interval'ler yeniden adlandırılmayacak
+  - Yarışlar: Strava'da koşu tipi "Race" (`workout_type=1`) olanlar — başlığa "race" yazmaya gerek yok.
+    **Kural:** "Race" sadece gerçekten yarış gibi koşulan yarışlar için kullanılır; pacer'lık edilen ya
+    da keyif için koşulan yarışlar (ör. Bodrum Yarı Maratonu 2025, arkadaşına pacer'lık) normal koşu
+    kalır. Karar tek yerde, Strava'da
+  - Interval'ler: başlığında "interval" geçen koşuların tekrar lap'leri. Elenenler: lap'lerin %60+'ı
+    1 km/1 mil olan seanslar (saatin otomatik lap'i — geçmiş "Interval Friday"lerin çoğu böyle).
+    Kalanlarda lap'ler en büyük hız boşluğundan hızlı/yavaş gruba ayrılır; hızlı gruptaki 2.5–6 dk'lık
+    lap'ler tekrar sayılır; tekrarın ortalama nabzı ≥ LTHR'nin %90'ı (~149) olmalı, en az 2 tekrar.
+    Interval temposu ≈ VO2max hızı varsayımı; oturum değeri tekrarların medyanı. Kriterler 3 seansla
+    kalibre edildi — yeni seanslar birikince (gerekirse Ahmet'in antrenman koçu agent'ıyla) gözden
+    geçirilecek. Bugünkü veride tek geçerli interval: 2025-12-05 (47.5)
   - Aynı gün hem yarış hem interval varsa yarış önceliklidir. Yarışta süre olarak elapsed time kullanılır
 - **Aktivite kategorileri:** Run/TrailRun/VirtualRun → koşu; HighIntensityIntervalTraining/Workout/
   WeightTraining/Crossfit → CrossFit; diğerleri → genel
@@ -79,12 +94,11 @@ başvurularında gösterilecek uçtan uca bir BI/data engineering örneği.
 Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** section'ı
 (projectId `6hQJcjr9826HXHmW`, sectionId `6hQJj3FjVxQc6rQW`). Güncel/otoriter kaynak Todoist'tir.
 
-- **Faz 0 — Kurulum:** ✅ Strava OAuth, ✅ GCP projesi + faturalama + bütçe alarmı, ✅ repo hijyeni
-  (README, ruff, pinli bağımlılıklar), ✅ GitHub reposu açıldı (`ac-ozdemir/training-performance-dashboard`,
-  public). ⏳ ilk 4 commit'in yazar e-postası düzeltilip push, API'ler, servis hesabı, Secret Manager
-- **Faz 1 — Veri pipeline'ı:** ✅ metrik fonksiyonları (26 test), ✅ BigQuery DDL. ⏳ ingestion + backfill,
-  interval lap ayrıştırma, metrik job'ı, JSON export, deploy (`deploy.sh`), Scheduler
-- **Faz 2 — Dashboard (4 Ekim):** Impeccable değerlendirmesi/kurulumu, monospace font kararı, Next.js
+- **Faz 0 — Kurulum:** ✅ tamamlandı (Strava OAuth, GCP + faturalama + bütçe alarmı, API'ler, servis
+  hesapları, Secret Manager, repo hijyeni, GitHub public repo + push)
+- **Faz 1 — Veri pipeline'ı:** ✅ tamamlandı, 2026-10-04 canlıda (60 test). Ingestion + backfill,
+  interval ayrıştırma, metrik job'ı, `dashboard.json` export, deploy, Scheduler
+- **Faz 2 — Dashboard (5 Ekim):** Impeccable değerlendirmesi/kurulumu, monospace font kararı, Next.js
   sayfası (6 kart/grafik: VO2max & form özeti, CTL/ATL/TSB, haftalık TRIMP, pace, nabız, mesafe;
   genel/koşu/CrossFit filtreli)
 - **Faz 3 — Doğrulama ve yayın (11 Ekim haftası):** hesaplamaları kişisel referanslarla doğrula,
@@ -100,9 +114,10 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
 - **Güvenlik:** secret'lar sohbete/çıktıya basılmaz, komut satırı argümanına değil stdin'e verilir;
   yerel secret dosyaları `chmod 600`; public repoya push öncesi geçmişte secret taraması yapılır
 
-## Bir Sonraki Oturum İçin Not (2026-10-03 gece)
-4 Ekim hedefi: pipeline canlı + dashboard sayfası. Sıra: commit yazarlarını düzelt + ilk push → GCP
-API'leri, servis hesabı, Secret Manager → ingestion + backfill → metrik job + JSON export → deploy +
-Scheduler → Impeccable değerlendirmesi → dashboard sayfası. Ahmet'ten beklenen: geçmiş yarışları
-Strava'da "Race" tipine işaretleme. Not: git geçmişini yeniden yazan komutlar (rebase/amend) Claude Code
-auto mode'da engelli — Ahmet'in izni/komutu gerekir.
+## Bir Sonraki Oturum İçin Not (2026-10-04 akşam)
+Pipeline canlı, her gece 23:30'da çalışıyor; `dashboard.json` herkese açık
+(`https://storage.googleapis.com/training-performance-dashboard-public/dashboard.json`, 1 saat
+önbellek). Sıradaki: Faz 2 — Impeccable değerlendirmesi (kullanım alanı → kurulum), monospace font
+kararı, portfolyo reposunda dashboard + case study sayfası (JSON şeması `pipeline/export/dashboard.py`,
+`schema_version: 1`). Not: git geçmişini yeniden yazan komutlar Claude Code auto mode'da engelli —
+gerekirse Ahmet kendisi çalıştırır.
