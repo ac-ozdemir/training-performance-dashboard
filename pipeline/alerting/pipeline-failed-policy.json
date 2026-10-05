@@ -1,0 +1,21 @@
+{
+  "displayName": "Training pipeline failed",
+  "documentation": {
+    "mimeType": "text/markdown",
+    "content": "The nightly Training Performance Dashboard pipeline logged an error or its Cloud Scheduler trigger failed.\n\n- Logs: Cloud Run functions → daily-pipeline → Logs (look for 'Pipeline run failed')\n- Scheduler: Cloud Scheduler → daily-pipeline\n- Effect: the dashboard keeps showing the last good data; after 48 hours it shows a staleness warning."
+  },
+  "combiner": "OR",
+  "conditions": [
+    {
+      "displayName": "daily-pipeline error or failed trigger",
+      "conditionMatchedLog": {
+        "filter": "(resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"daily-pipeline\" AND severity>=ERROR) OR (resource.type=\"cloud_scheduler_job\" AND resource.labels.job_id=\"daily-pipeline\" AND severity>=ERROR)"
+      }
+    }
+  ],
+  "alertStrategy": {
+    "notificationRateLimit": { "period": "3600s" },
+    "autoClose": "1800s"
+  },
+  "severity": "ERROR"
+}

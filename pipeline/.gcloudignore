@@ -13,3 +13,4 @@ deploy.sh
 pyproject.toml
 .gitignore
 .gcloudignore
+alerting/
