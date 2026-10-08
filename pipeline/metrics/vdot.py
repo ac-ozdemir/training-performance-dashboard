@@ -48,3 +48,18 @@ def vdot_from_interval_speed(speed_m_s: float) -> float:
     if speed_m_s <= 0:
         raise ValueError("speed_m_s must be positive")
     return _vo2_from_velocity(speed_m_s * 60)
+
+
+THRESHOLD_RACE_SECONDS = 3600
+
+
+def vdot_from_threshold_speed(speed_m_s: float) -> float:
+    """Estimate VDOT from tempo pace, treating threshold (T) pace as one-hour race pace.
+
+    Daniels defines T pace as the pace a runner could race for about 60 minutes, so the
+    tempo speed is scored as if it were a 60-minute race. Tempo run easier than true T
+    pace will understate VDOT.
+    """
+    if speed_m_s <= 0:
+        raise ValueError("speed_m_s must be positive")
+    return vdot(speed_m_s * THRESHOLD_RACE_SECONDS, THRESHOLD_RACE_SECONDS)

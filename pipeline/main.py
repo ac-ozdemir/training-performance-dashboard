@@ -22,7 +22,7 @@ from export.dashboard import build_payload, publish
 from metrics.daily import build_daily_metrics
 from secrets_store import SecretStore
 from strava.client import StravaClient
-from strava.transform import is_interval_session, to_activity_row, to_lap_row
+from strava.transform import is_workout_session, to_activity_row, to_lap_row
 from warehouse.bigquery import existing_laps, replace_table
 
 LOCAL_TZ = ZoneInfo("Europe/Istanbul")
@@ -53,7 +53,7 @@ def run() -> dict:
     for activity in activities:
         activity_id = str(activity["id"])
         laps = known_laps.get(activity_id, [])
-        if not laps and is_interval_session(activity):
+        if not laps and is_workout_session(activity):
             laps = [to_lap_row(lap) for lap in strava.list_laps(activity_id)]
             laps_fetched += 1
         rows.append(to_activity_row(activity, ingested_at=now, laps=laps))

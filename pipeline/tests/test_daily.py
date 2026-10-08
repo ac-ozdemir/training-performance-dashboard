@@ -79,16 +79,25 @@ def test_easy_runs_and_crossfit_have_no_vdot():
     assert activity_vdot(_row("2026-10-01", category="crossfit", workout_type=1), ATHLETE) is None
 
 
+REP = {"average_speed": 4.17, "moving_time_s": 180, "distance_m": 750.0, "average_heartrate": 158}
+JOG = {"average_speed": 2.5, "moving_time_s": 90, "distance_m": 225.0, "average_heartrate": 145}
+INTERVAL_LAPS = [REP, JOG, REP, JOG, REP]
+
+
+def test_workout_tag_unlocks_interval_vdot():
+    value, source = activity_vdot(_row("2026-10-01", workout_type=3, laps=INTERVAL_LAPS), ATHLETE)
+    assert source == "interval"
+    assert value > 0
+
+
+def test_laps_without_workout_tag_give_no_vdot():
+    # e.g. runs once titled "interval" whose laps are still stored in the warehouse
+    assert activity_vdot(_row("2026-10-01", laps=INTERVAL_LAPS), ATHLETE) is None
+
+
 def test_race_beats_interval_on_same_day():
-    rep = {
-        "average_speed": 4.17,
-        "moving_time_s": 180,
-        "distance_m": 750.0,
-        "average_heartrate": 158,
-    }
-    jog = {"average_speed": 2.5, "moving_time_s": 90, "distance_m": 225.0, "average_heartrate": 145}
     rows = [
-        _row("2026-10-01", laps=[rep, jog, rep, jog, rep]),
+        _row("2026-10-01", workout_type=3, laps=INTERVAL_LAPS),
         _row("2026-10-01", workout_type=1, distance_m=5000.0, elapsed_time_s=1200),
     ]
     day = _build(rows, today=date(2026, 10, 1))[0]

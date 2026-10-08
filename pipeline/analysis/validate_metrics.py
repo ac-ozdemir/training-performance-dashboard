@@ -1,4 +1,4 @@
-"""Faz 3 validation: cross-check TRIMP against hrTSS and review interval sessions.
+"""Faz 3 validation: cross-check TRIMP against hrTSS and review Workout-tagged runs.
 
 Reads the live `activities` table with Application Default Credentials and prints a
 Markdown report. Usage (from pipeline/): .venv/bin/python -m analysis.validate_metrics
@@ -18,11 +18,11 @@ from google.cloud import bigquery  # noqa: E402
 from config import ACTIVITIES_TABLE, ATHLETE, LOAD_SERIES_START  # noqa: E402
 from metrics.daily import activity_date, activity_trimp, seeded_load_series  # noqa: E402
 from metrics.hrtss import hr_tss  # noqa: E402
-from metrics.intervals import is_auto_lapped, select_work_laps, session_vdot  # noqa: E402
+from metrics.workouts import select_tempo_blocks, select_work_laps, workout_vdot  # noqa: E402
+from strava.transform import WORKOUT_WORKOUT_TYPE  # noqa: E402
 
 # Same bounds as the dashboard page (portfolio src/lib/training/derive.ts).
 TSB_BOUNDS = (-30, -10, 5)
-INTERVAL_REVIEW_FROM = date(2026, 10, 4)
 
 
 def tsb_zone(tsb: float) -> str:
@@ -123,30 +123,24 @@ def section_load_agreement(points: list[dict], today: date) -> list[str]:
     return lines + [""]
 
 
-def section_intervals(rows: list[dict]) -> list[str]:
-    lines = [f"## 3. Interval sessions since {INTERVAL_REVIEW_FROM}", ""]
+def section_workouts(rows: list[dict]) -> list[str]:
+    lines = ["## 3. Runs tagged 'Workout' in Strava", ""]
     sessions = [
-        r
-        for r in rows
-        if r["category"] == "run"
-        and "interval" in (r.get("name") or "").lower()
-        and activity_date(r) >= INTERVAL_REVIEW_FROM
+        r for r in rows if r["category"] == "run" and r.get("workout_type") == WORKOUT_WORKOUT_TYPE
     ]
     if not sessions:
-        return lines + ["No runs titled 'interval' since then.", ""]
+        return lines + ["No runs tagged 'Workout' yet.", ""]
     lines += [
-        "| Date | Laps | Auto-lapped | Reps found | Reps ≥ 90% LTHR | Session VDOT |",
-        "|---|---:|---|---:|---:|---:|",
+        "| Date | Laps | Interval reps | Tempo blocks | Result |",
+        "|---|---:|---:|---:|---|",
     ]
-    min_hr = ATHLETE.lthr * 0.90
     for r in sorted(sessions, key=activity_date):
         laps = r["laps"]
-        reps = select_work_laps(laps)
-        hard = [lap for lap in reps if (lap.get("average_heartrate") or 0) >= min_hr]
-        value = session_vdot(laps, ATHLETE)
+        result = workout_vdot(laps, ATHLETE)
         lines.append(
-            f"| {activity_date(r)} | {len(laps)} | {'yes' if is_auto_lapped(laps) else 'no'} | "
-            f"{len(reps)} | {len(hard)} | {f'{value:.1f}' if value else '—'} |"
+            f"| {activity_date(r)} | {len(laps)} | {len(select_work_laps(laps))} | "
+            f"{len(select_tempo_blocks(laps))} | "
+            f"{f'{result[1]} VDOT {result[0]:.1f}' if result else 'no qualifying effort'} |"
         )
     return lines + [""]
 
@@ -164,7 +158,7 @@ def main() -> None:
     ]
     report += section_activity_agreement(points)
     report += section_load_agreement(points, today)
-    report += section_intervals(rows)
+    report += section_workouts(rows)
     print("\n".join(report))
 
 

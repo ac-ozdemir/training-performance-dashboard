@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from strava.transform import category_for, is_interval_session, to_activity_row
+from strava.transform import category_for, is_workout_session, to_activity_row
 
 INGESTED_AT = datetime(2026, 10, 4, 20, 0, tzinfo=UTC)
 
@@ -72,9 +72,10 @@ def test_category_mapping(sport_type, expected):
     assert category_for(sport_type) == expected
 
 
-def test_interval_detection_is_case_insensitive_and_runs_only():
-    assert is_interval_session(_activity(name="Track INTERVAL 5x1000"))
-    assert not is_interval_session(_activity(name="Easy Run"))
-    assert not is_interval_session(
-        _activity(name="Interval HIIT", sport_type="HighIntensityIntervalTraining")
+def test_workout_sessions_come_from_the_strava_run_type_not_the_title():
+    assert is_workout_session(_activity(name="Evening Run", workout_type=3))
+    assert not is_workout_session(_activity(name="Interval Friday", workout_type=None))
+    assert not is_workout_session(_activity(name="Runtalya 2026", workout_type=1))
+    assert not is_workout_session(
+        _activity(sport_type="HighIntensityIntervalTraining", workout_type=3)
     )

@@ -16,8 +16,6 @@ SECRET_CLIENT_ID = "strava-client-id"
 SECRET_CLIENT_SECRET = "strava-client-secret"
 SECRET_REFRESH_TOKEN = "strava-refresh-token"
 
-INTERVAL_KEYWORD = "interval"
-
 
 @dataclass(frozen=True)
 class AthleteParams:

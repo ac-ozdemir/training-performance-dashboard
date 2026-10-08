@@ -5,7 +5,6 @@ from datetime import date, datetime, timedelta
 from statistics import mean
 
 from config import AthleteParams
-from metrics.intervals import session_vdot
 from metrics.training_load import (
     ATL_TIME_CONSTANT_DAYS,
     CTL_TIME_CONSTANT_DAYS,
@@ -13,7 +12,8 @@ from metrics.training_load import (
 )
 from metrics.trimp import banister_trimp
 from metrics.vdot import vdot
-from strava.transform import RACE_WORKOUT_TYPE
+from metrics.workouts import workout_vdot
+from strava.transform import RACE_WORKOUT_TYPE, WORKOUT_WORKOUT_TYPE
 
 CATEGORIES = ("run", "crossfit", "other")
 
@@ -36,19 +36,19 @@ def activity_trimp(row: dict, athlete: AthleteParams) -> float | None:
 
 
 def activity_vdot(row: dict, athlete: AthleteParams) -> tuple[float, str] | None:
-    """(VDOT, source) for a race or a qualifying interval session, else None.
+    """(VDOT, "race" | "interval" | "tempo") for a tagged run that qualifies, else None.
 
-    "Race" is the athlete's own Strava tag, used only for races actually run all-out
-    (a race paced for a friend stays a normal run).
+    Both tags are the athlete's own Strava run types: "Race" only for races actually run
+    all-out (a race paced for a friend stays a normal run), "Workout" for interval and
+    tempo sessions.
     """
     if row["category"] != "run":
         return None
-    if row.get("workout_type") == RACE_WORKOUT_TYPE and row.get("distance_m"):
+    workout_type = row.get("workout_type")
+    if workout_type == RACE_WORKOUT_TYPE and row.get("distance_m"):
         return vdot(row["distance_m"], row["elapsed_time_s"]), "race"
-    if row.get("laps"):
-        estimate = session_vdot(row["laps"], athlete)
-        if estimate is not None:
-            return estimate, "interval"
+    if workout_type == WORKOUT_WORKOUT_TYPE and row.get("laps"):
+        return workout_vdot(row["laps"], athlete)
     return None
 
 

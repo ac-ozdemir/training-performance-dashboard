@@ -2,13 +2,13 @@
 
 from datetime import datetime
 
-from config import INTERVAL_KEYWORD
-
 RUN_TYPES = frozenset({"Run", "TrailRun", "VirtualRun"})
 CROSSFIT_TYPES = frozenset(
     {"HighIntensityIntervalTraining", "Workout", "WeightTraining", "Crossfit"}
 )
+# Strava run types the athlete sets per activity ("Run type" when editing a run).
 RACE_WORKOUT_TYPE = 1
+WORKOUT_WORKOUT_TYPE = 3
 
 
 def category_for(sport_type: str) -> str:
@@ -19,10 +19,11 @@ def category_for(sport_type: str) -> str:
     return "other"
 
 
-def is_interval_session(activity: dict) -> bool:
+def is_workout_session(activity: dict) -> bool:
+    """A run the athlete tagged as "Workout" in Strava (intervals or tempo)."""
     return (
         activity.get("sport_type") in RUN_TYPES
-        and INTERVAL_KEYWORD in (activity.get("name") or "").lower()
+        and activity.get("workout_type") == WORKOUT_WORKOUT_TYPE
     )
 
 
