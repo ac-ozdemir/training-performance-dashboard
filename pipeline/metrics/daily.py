@@ -52,7 +52,7 @@ def activity_vdot(row: dict, athlete: AthleteParams) -> tuple[float, str] | None
     return None
 
 
-def _load_series(totals: list[float]) -> list[dict]:
+def seeded_load_series(totals: list[float]) -> list[dict]:
     """CTL/ATL/TSB seeded with the opening period's mean load instead of zero.
 
     Starting from zero makes the first six weeks look like an artificial build-up.
@@ -96,7 +96,7 @@ def build_daily_metrics(
     load_days = [i for i, d in enumerate(days) if d >= load_start]
     load_by_index: dict[int, dict] = {}
     if load_days:
-        series = _load_series([totals[i] for i in load_days])
+        series = seeded_load_series([totals[i] for i in load_days])
         load_by_index = dict(zip(load_days, series, strict=True))
 
     result = []
