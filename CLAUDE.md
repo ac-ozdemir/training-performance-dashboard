@@ -142,8 +142,12 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
 Pipeline canlı ve sağlıklı (479 aktivite), hata alarmı doğrulandı, Faz 3 doğrulaması bitti. Kalanlar:
 Looker Studio raporu (Ahmet'in Google hesabıyla, Claude rehberliğinde; BigQuery tarafı bu repoda) ve case
 study metni (portfolyo reposunda; malzeme `docs/validation-2026-10-08.md` ve README'deki tasarım
-kararları). Açık: 2025-12-05 ve 2026-03-27 yapılandırılmış interval'leri Strava'da Workout olarak
-etiketlenirse VDOT'a 47.5 ve 46.5 eklenir (Ahmet'in kararı).
+kararları). VDOT geçmişi artık 5 yarış + 4 workout (2025-12-05 ve 2026-03-27 yapılandırılmış interval'ler
+de etiketlendi).
+
+**2026-10-09'un ilk işi:** Todoist'teki "Kod projelerini iCloud dışına taşı (~/Developer) + n8n için private
+GitHub reposu" task'ı — adımlar task açıklamasında. Taşıma sonrası bu dosyadaki ve hafızadaki
+`/Users/ahmetcanozdemir/Documents/Claude/...` yolları `~/Developer/...` olarak güncellenecek.
 
 Bilinen ortam sorunları:
 - Git geçmişini yeniden yazan komutlar Claude Code auto mode'da engelli — gerekirse Ahmet kendisi çalıştırır
