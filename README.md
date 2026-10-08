@@ -40,7 +40,7 @@ Design choices worth calling out:
 | Metric | Method | Code |
 | --- | --- | --- |
 | TRIMP | Banister's exponential training impulse, from session duration and average heart rate | [`trimp.py`](pipeline/metrics/trimp.py) |
-| CTL / ATL / TSB | Performance Management Chart: 42- and 7-day exponentially weighted load, form = previous day's CTL − ATL | [`training_load.py`](pipeline/metrics/training_load.py), [`daily.py`](pipeline/metrics/daily.py) |
+| CTL / ATL / TSB | Performance Management Chart: 42- and 7-day exponentially weighted load, form = the same day's CTL − ATL (fitness minus fatigue) | [`training_load.py`](pipeline/metrics/training_load.py), [`daily.py`](pipeline/metrics/daily.py) |
 | VDOT (VO2max estimate) | Daniels & Gilbert, from races and from interval reps | [`vdot.py`](pipeline/metrics/vdot.py), [`intervals.py`](pipeline/metrics/intervals.py) |
 
 All metric functions are pure and unit-tested. Caveats, stated rather than hidden:

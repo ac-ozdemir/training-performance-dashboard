@@ -24,15 +24,14 @@ def compute_daily_series(
     daily_loads: one value per calendar day, oldest first, 0.0 for rest days.
     Returns one row per input day: {"load", "ctl", "atl", "tsb"}.
 
-    TSB follows the TrainingPeaks convention — it reflects the fitness/fatigue
-    balance a day *starts* with, so it's computed from the previous day's CTL/ATL,
-    before that day's own load is absorbed into the chronic/acute averages.
+    TSB is the same day's CTL - ATL, so form always equals fitness minus fatigue as
+    displayed. (TrainingPeaks instead uses the previous day's values — the balance a
+    day starts with — which makes the three numbers shown for one day not add up.)
     """
     ctl, atl = initial_ctl, initial_atl
     rows = []
     for load in daily_loads:
-        tsb = ctl - atl
         ctl = next_ctl(ctl, load)
         atl = next_atl(atl, load)
-        rows.append({"load": load, "ctl": ctl, "atl": atl, "tsb": tsb})
+        rows.append({"load": load, "ctl": ctl, "atl": atl, "tsb": ctl - atl})
     return rows

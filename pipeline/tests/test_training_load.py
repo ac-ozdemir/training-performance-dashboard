@@ -3,17 +3,17 @@ import pytest
 from metrics.training_load import compute_daily_series, next_atl, next_ctl
 
 
-def test_first_day_tsb_is_zero_from_fresh_start():
+def test_first_day_absorbs_its_own_load():
     rows = compute_daily_series([100], initial_ctl=0.0, initial_atl=0.0)
-    assert rows[0]["tsb"] == 0.0
     assert rows[0]["ctl"] == pytest.approx(2.380952, rel=1e-5)
     assert rows[0]["atl"] == pytest.approx(14.285714, rel=1e-5)
+    # a big day raises fatigue faster than fitness -> negative form the same day
+    assert rows[0]["tsb"] == pytest.approx(-11.904762, rel=1e-5)
 
 
-def test_second_day_tsb_reflects_previous_day_fatigue():
-    rows = compute_daily_series([100, 0], initial_ctl=0.0, initial_atl=0.0)
-    # after a big day-1 load, atl has risen faster than ctl -> negative form
-    assert rows[1]["tsb"] == pytest.approx(-11.904762, rel=1e-5)
+def test_form_is_always_same_day_fitness_minus_fatigue():
+    for row in compute_daily_series([100, 0, 60, 0, 0, 120], initial_ctl=30.0, initial_atl=45.0):
+        assert row["tsb"] == pytest.approx(row["ctl"] - row["atl"])
 
 
 def test_constant_load_converges_towards_itself():

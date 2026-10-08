@@ -70,7 +70,7 @@ başvurularında gösterilecek uçtan uca bir BI/data engineering örneği.
 - **LTHR 165** (Ahmet'in testi, 2026-10): LTHR bazlı nabız bölgeleri ve Faz 3'te TRIMP'i hrTSS ile
   çapraz kontrol için kullanılabilir
 - **Nabızsız aktiviteler:** yük olarak 0 sayılır, tahmin yapılmaz (Ahmet kararı, 2026-10-04)
-- **CTL/ATL/TSB:** 42/7 günlük EWMA, TSB = önceki günün CTL − ATL (TrainingPeaks konvansiyonu). Seri
+- **CTL/ATL/TSB:** 42/7 günlük EWMA, TSB = aynı günün CTL − ATL (2026-10-08 kararı: sayfadaki Form = Fitness − Fatigue tutarlı olsun diye; TrainingPeaks'in "önceki gün" konvansiyonu bırakıldı). Seri
   **2025-11-01'den** başlar (`LOAD_SERIES_START`, nabız kapsamının başladığı tarih); başlangıç CTL/ATL'i
   ilk 42/7 günün ortalama yüküyle doldurulur (sıfırdan yapay yükseliş olmasın diye). Export'taki günlük
   seri de buradan başlar
