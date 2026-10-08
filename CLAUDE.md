@@ -89,6 +89,12 @@ başvurularında gösterilecek uçtan uca bir BI/data engineering örneği.
   - Aynı gün hem yarış hem interval varsa yarış önceliklidir. Yarışta süre olarak elapsed time kullanılır
 - **Aktivite kategorileri:** Run/TrailRun/VirtualRun → koşu; HighIntensityIntervalTraining/Workout/
   WeightTraining/Crossfit → CrossFit; diğerleri → genel
+- **Doğrulama (2026-10-08, `docs/validation-2026-10-08.md`, `pipeline/analysis/validate_metrics.py`):**
+  TRIMP ↔ hrTSS (ortalama nabız yaklaşımı, LTHR 165) aktivite bazında r = 0.955 (koşu 0.975, CrossFit
+  0.951), TRIMP/hrTSS medyanı 1.09; CTL r = 0.959, TSB r = 0.973, günlerin %88'inde aynı form bölgesi
+  → sayfadaki TSS ölçekli bölge eşikleri (−30/−10/+5) TRIMP'e uyuyor. Garmin VO2max (güncel 59) aynı
+  yarıştan sonra race VDOT'un ~3 puan üstünde (fizyolojik vs. performansa dayalı tahmin); sayfada
+  "Running fitness (VDOT)" olarak doğru etiketli, "VO2max" denmiyor
 
 ## Faz Planı ve Durum
 Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** section'ı
@@ -98,13 +104,13 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
   hesapları, Secret Manager, repo hijyeni, GitHub public repo + push)
 - **Faz 1 — Veri pipeline'ı:** ✅ tamamlandı, 2026-10-04 canlıda (60 test). Ingestion + backfill,
   interval ayrıştırma, metrik job'ı, `dashboard.json` export, deploy, Scheduler
-- **Faz 2 — Dashboard (5 Ekim):** ✅ Impeccable portfolyo reposuna kuruldu, `PRODUCT.md` + `DESIGN.md`
-  ("Warm Precision") yazıldı (2026-10-04). ⏳ `/impeccable shape` ile sayfa planı (monospace font kararı
-  dahil), Next.js
-  sayfası (6 kart/grafik: VO2max & form özeti, CTL/ATL/TSB, haftalık TRIMP, pace, nabız, mesafe;
-  genel/koşu/CrossFit filtreli)
-- **Faz 3 — Doğrulama ve yayın (11 Ekim haftası):** hesaplamaları kişisel referanslarla doğrula,
-  Looker Studio embed, case study
+- **Faz 2 — Dashboard:** ✅ tamamlandı (4-5 Ekim, portfolyo reposunda), yayında:
+  `https://acozdemir.com/projects/training-performance-dashboard`. Akış sonradan "önce dashboard"
+  olarak değişti; 6 grafik + filtreler, Powered by Strava logosu, audit + polish, OG görseli. Hata
+  alarmı kuruldu ve 2026-10-08'de uçtan uca doğrulandı (`pipeline/alerting/`)
+- **Faz 3 — Doğrulama ve yayın:** ✅ TRIMP ↔ hrTSS ve Garmin kıyası (2026-10-08). ⏳ interval
+  kriterlerinin yeni seanslarla gözden geçirilmesi (henüz yeni "interval" seansı yok), Looker Studio
+  embed, case study metni
 - **V2 Backlog:** manuel wellness check-in + AI insight + Garmin-özel metrikler
 
 ## Hangi İş Hangi Klasörde (2026-10-04)
@@ -127,14 +133,10 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
 - **Güvenlik:** secret'lar sohbete/çıktıya basılmaz, komut satırı argümanına değil stdin'e verilir;
   yerel secret dosyaları `chmod 600`; public repoya push öncesi geçmişte secret taraması yapılır
 
-## Bir Sonraki Oturum İçin Not (2026-10-04 akşam)
-Pipeline canlı, her gece 23:30'da çalışıyor; `dashboard.json` herkese açık
-(`https://storage.googleapis.com/training-performance-dashboard-public/dashboard.json`, 1 saat
-önbellek). Impeccable portfolyo reposunda kurulu; tasarım bağlamı portfolyodaki `PRODUCT.md` ve
-`DESIGN.md`. Shape tamamlandı (2026-10-04): onaylı sayfa özeti Todoist'teki "[Faz 2] Sayfa planı"
-task'ının açıklamasında (Özet → Dashboard → Case study; odak Form & Fitness + TSB bölgeleri; tarih +
-kategori filtresi; rakamlar tabular-nums, mono sadece meta; veri paleti petrol tonları + tek sıcak
-kontrast). Sıradaki: "[Faz 2] Detay sayfası iskeleti + veri katmanı" — oturum portfolyo klasörüne
-taşınır, önce Impeccable surface brief + direction contract yazılır (code-led, concept-seed yok), JSON
-şeması `pipeline/export/dashboard.py` (`schema_version: 1`). Not: git geçmişini yeniden yazan komutlar Claude Code auto mode'da engelli —
-gerekirse Ahmet kendisi çalıştırır.
+## Bir Sonraki Oturum İçin Not (2026-10-08 akşam)
+Pipeline canlı ve sağlıklı (4-7 Ekim gece çalışmalarının hepsi başarılı, 478 aktivite), hata alarmı
+doğrulandı. Sayfa yayında. Faz 3'te doğrulama yapıldı; kalanlar: Looker Studio raporu (Ahmet'in Google
+hesabıyla, Claude rehberliğinde; BigQuery tarafı bu repoda), case study metni (portfolyo reposunda;
+malzeme `docs/validation-2026-10-08.md` ve README'deki tasarım kararları), interval kriterlerinin yeni
+seanslarla gözden geçirilmesi. Not: git geçmişini yeniden yazan komutlar Claude Code auto mode'da
+engelli — gerekirse Ahmet kendisi çalıştırır.
