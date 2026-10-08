@@ -53,6 +53,31 @@ Garmin values are read approximately from the Garmin Connect 6-month VO2max char
 - **Noise.** Garmin's estimate swings ~4–5 points within the six months and ~2 points within weeks;
   VDOT is sparse but stable. The two are complementary rather than contradictory.
 
+## 5. Workout rules on real sessions (added 2026-10-08, late)
+
+Interval and tempo sessions are now recognised by the Strava run type "Workout" instead of the word
+"interval" in the title, and tempo runs count towards VDOT. A scan of 89 untagged heart-rate runs
+since 2025-11-01 (`pipeline/analysis/find_workout_candidates.py`) and the first tagged sessions give:
+
+| Date | Session | Read as | VDOT | Verdict |
+|---|---|---|---:|---|
+| 2025-12-05 | 5 × 3 min, watch structured workout, rep HR 148–160 | interval | 47.5 | qualifies (not tagged yet) |
+| 2026-03-27 | 6 × ~4 min, watch structured workout, rep HR 153–161 | interval | 46.5 | qualifies (not tagged yet) |
+| 2026-09-29 | LTHR test: 10 + 20 min, last 20 min HR 165 | tempo | 53.2 | **reads ~2.4 high**: a 30-min all-out effort scored as one-hour pace; as a 30-min race it would be ≈ 50.8. Kept as tempo by Ahmet's decision |
+| 2026-10-02 | 5 × ~3.8 min @ 3:38–3:52, rep HR 149–158 | interval | 50.9 | qualifies |
+| 2026-10-06 | 2 × 15 min @ 4:06–4:07, HR 160–161 | tempo | 51.7 | qualifies |
+| 2026-01-09, 2026-01-16 | 5 × 3 min, rep HR 128–148 | interval | — | correctly rejected: below 90% LTHR |
+| 2026-04-26 | trail race, steep climbs | — | — | correctly rejected |
+
+The recent interval (50.9) and tempo (51.7) agree with each other and with the last race (51.2, April),
+which supports both conversions (I pace ≈ vVO2max, T pace ≈ one-hour race pace) and the effort gates
+(≥ 90% LTHR for reps, ≥ 95% for tempo). Sessions recorded as watch structured workouts get one lap
+per step, so they work as well as manually lapped ones.
+
+Also changed the same evening: form (TSB) is now the **same day's** CTL − ATL rather than the previous
+day's (TrainingPeaks convention), so the form, fitness and fatigue shown for one day always add up.
+Sections 1–2 compared TRIMP and hrTSS under one shared convention, so their conclusions are unaffected.
+
 ## Conclusions
 
 1. TRIMP and hrTSS agree closely (r ≈ 0.95–0.98), and their scales are within ~10% of each other, so
@@ -60,5 +85,6 @@ Garmin values are read approximately from the Garmin Connect 6-month VO2max char
 2. CrossFit/HIIT agreement (r = 0.951) is slightly below running (0.975), consistent with TRIMP
    being an approximation for interval-type strength work.
 3. VDOT is honest but sparse and sits below Garmin's VO2max by design; present it as race-based VDOT.
-4. Interval criteria still need new manually lapped "interval" sessions to be re-checked.
+4. Interval and tempo rules behave sensibly on real sessions (section 5); the one known bias is a
+   30-minute threshold test scored as tempo (~2.4 high).
 

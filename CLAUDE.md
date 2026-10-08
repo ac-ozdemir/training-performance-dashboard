@@ -74,19 +74,24 @@ başvurularında gösterilecek uçtan uca bir BI/data engineering örneği.
   **2025-11-01'den** başlar (`LOAD_SERIES_START`, nabız kapsamının başladığı tarih); başlangıç CTL/ATL'i
   ilk 42/7 günün ortalama yüküyle doldurulur (sıfırdan yapay yükseliş olmasın diye). Export'taki günlük
   seri de buradan başlar
-- **VDOT (Daniels & Gilbert):** iki kaynak, grafikte farklı işaretlerle
-  - Yarışlar: Strava'da koşu tipi "Race" (`workout_type=1`) olanlar — başlığa "race" yazmaya gerek yok.
-    **Kural:** "Race" sadece gerçekten yarış gibi koşulan yarışlar için kullanılır; pacer'lık edilen ya
-    da keyif için koşulan yarışlar (ör. Bodrum Yarı Maratonu 2025, arkadaşına pacer'lık) normal koşu
-    kalır. Karar tek yerde, Strava'da
-  - Interval'ler: başlığında "interval" geçen koşuların tekrar lap'leri. Elenenler: lap'lerin %60+'ı
-    1 km/1 mil olan seanslar (saatin otomatik lap'i — geçmiş "Interval Friday"lerin çoğu böyle).
-    Kalanlarda lap'ler en büyük hız boşluğundan hızlı/yavaş gruba ayrılır; hızlı gruptaki 2.5–6 dk'lık
-    lap'ler tekrar sayılır; tekrarın ortalama nabzı ≥ LTHR'nin %90'ı (~149) olmalı, en az 2 tekrar.
-    Interval temposu ≈ VO2max hızı varsayımı; oturum değeri tekrarların medyanı. Kriterler 3 seansla
-    kalibre edildi — yeni seanslar birikince (gerekirse Ahmet'in antrenman koçu agent'ıyla) gözden
-    geçirilecek. Bugünkü veride tek geçerli interval: 2025-12-05 (47.5)
-  - Aynı gün hem yarış hem interval varsa yarış önceliklidir. Yarışta süre olarak elapsed time kullanılır
+- **VDOT (Daniels & Gilbert):** üç kaynak, grafikte farklı işaretlerle (yarış dolu daire, interval
+  halka, tempo kare). Etiketlerin ikisi de Ahmet'in Strava'da seçtiği koşu tipi — karar tek yerde, Strava'da
+  - Yarışlar: koşu tipi "Race" (`workout_type=1`). **Kural:** "Race" sadece gerçekten yarış gibi koşulan
+    yarışlar için; pacer'lık edilen ya da keyif için koşulanlar (ör. Bodrum Yarı Maratonu 2025) normal
+    koşu kalır. Süre olarak elapsed time
+  - Interval ve tempo: koşu tipi **"Workout"** (`workout_type=3`, 2026-10-08 kararı; eski "başlıkta
+    interval" kuralı kaldırıldı). `pipeline/metrics/workouts.py` lap yapısından ayırt eder; lap'ler en büyük
+    hız boşluğundan hızlı/yavaş gruba ayrılır. Saatin yapılandırılmış antrenmanları her adım için lap
+    attığından elle lap kadar iyi çalışır
+    - **Interval:** hızlı gruptaki 2.5–6 dk'lık lap'ler, en az 2 tekrar, tekrar nabzı ≥ %90 LTHR (~149);
+      otomatik 1 km/1 mil lap'li seanslar elenir; I tempo ≈ vVO2max; oturum değeri tekrarların medyanı
+    - **Tempo:** hızlı gruptaki 10–40 dk'lık blok(lar), toplam ≥ 15 dk, zaman ağırlıklı nabız ≥ %95 LTHR
+      (~157); T tempo = 60 dk yarış temposu sayılır. Isınmadaki otomatik km lap'leri tempo'yu elemez
+    - **LTHR testi** (30 dk tam efor) tempo olarak okunuyor ve ~2.4 yüksek çıkıyor (53.2; 30 dk yarış
+      olarak ≈ 50.8) — Ahmet'in kararıyla tempo olarak kalıyor, case study'de not edilecek
+  - Aynı gün yarış ile workout çakışırsa yarış öncelikli
+  - Kural doğrulaması gerçek seanslarla yapıldı (`docs/validation-2026-10-08.md` §5): Ekim interval 50.9,
+    tempo 51.7, son yarış 51.2 ile tutarlı
 - **Aktivite kategorileri:** Run/TrailRun/VirtualRun → koşu; HighIntensityIntervalTraining/Workout/
   WeightTraining/Crossfit → CrossFit; diğerleri → genel
 - **Doğrulama (2026-10-08, `docs/validation-2026-10-08.md`, `pipeline/analysis/validate_metrics.py`):**
@@ -108,9 +113,9 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
   `https://acozdemir.com/projects/training-performance-dashboard`. Akış sonradan "önce dashboard"
   olarak değişti; 6 grafik + filtreler, Powered by Strava logosu, audit + polish, OG görseli. Hata
   alarmı kuruldu ve 2026-10-08'de uçtan uca doğrulandı (`pipeline/alerting/`)
-- **Faz 3 — Doğrulama ve yayın:** ✅ TRIMP ↔ hrTSS ve Garmin kıyası (2026-10-08). ⏳ interval
-  kriterlerinin yeni seanslarla gözden geçirilmesi (henüz yeni "interval" seansı yok), Looker Studio
-  embed, case study metni
+- **Faz 3 — Doğrulama ve yayın:** ✅ doğrulama (TRIMP ↔ hrTSS, Garmin kıyası, Workout/tempo kuralları
+  gerçek seanslarla — 2026-10-08). Aynı gece: Workout etiketi + tempo VDOT, aynı gün TSB, sayfada
+  Fatigue göstergesi (yayında). ⏳ Looker Studio embed, case study metni
 - **V2 Backlog:** manuel wellness check-in + AI insight + Garmin-özel metrikler
 
 ## Hangi İş Hangi Klasörde (2026-10-04)
@@ -134,9 +139,16 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
   yerel secret dosyaları `chmod 600`; public repoya push öncesi geçmişte secret taraması yapılır
 
 ## Bir Sonraki Oturum İçin Not (2026-10-08 akşam)
-Pipeline canlı ve sağlıklı (4-7 Ekim gece çalışmalarının hepsi başarılı, 478 aktivite), hata alarmı
-doğrulandı. Sayfa yayında. Faz 3'te doğrulama yapıldı; kalanlar: Looker Studio raporu (Ahmet'in Google
-hesabıyla, Claude rehberliğinde; BigQuery tarafı bu repoda), case study metni (portfolyo reposunda;
-malzeme `docs/validation-2026-10-08.md` ve README'deki tasarım kararları), interval kriterlerinin yeni
-seanslarla gözden geçirilmesi. Not: git geçmişini yeniden yazan komutlar Claude Code auto mode'da
-engelli — gerekirse Ahmet kendisi çalıştırır.
+Pipeline canlı ve sağlıklı (479 aktivite), hata alarmı doğrulandı, Faz 3 doğrulaması bitti. Kalanlar:
+Looker Studio raporu (Ahmet'in Google hesabıyla, Claude rehberliğinde; BigQuery tarafı bu repoda) ve case
+study metni (portfolyo reposunda; malzeme `docs/validation-2026-10-08.md` ve README'deki tasarım
+kararları). Açık: 2025-12-05 ve 2026-03-27 yapılandırılmış interval'leri Strava'da Workout olarak
+etiketlenirse VDOT'a 47.5 ve 46.5 eklenir (Ahmet'in kararı).
+
+Bilinen ortam sorunları:
+- Git geçmişini yeniden yazan komutlar Claude Code auto mode'da engelli — gerekirse Ahmet kendisi çalıştırır
+- Documents klasörü iCloud'da ve "Mac depolamayı optimize et" açık: portfolyonun `node_modules`'ındaki
+  binlerce dosya yalnız bulutta duruyor, ESLint/derleme bu yüzden takılabiliyor (2026-10-08). Yayından önce
+  güvence Vercel'in kendi derlemesi; kalıcı çözüm Ahmet'in kararına bırakıldı
+- Strava okuma limiti 100 istek / 15 dk, 1000 / gün: geniş taramalar `analysis/` script'leriyle yavaşlatılarak
+  ve 23:30 gece çalışmasının penceresinden uzak çalıştırılmalı
