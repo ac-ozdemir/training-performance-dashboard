@@ -142,21 +142,22 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
 - **Güvenlik:** secret'lar sohbete/çıktıya basılmaz, komut satırı argümanına değil stdin'e verilir;
   yerel secret dosyaları `chmod 600`; public repoya push öncesi geçmişte secret taraması yapılır
 
-## Bir Sonraki Oturum İçin Not (2026-10-08 akşam)
+## Bir Sonraki Oturum İçin Not (2026-10-08 akşam, konum 2026-10-10)
 Pipeline canlı ve sağlıklı (479 aktivite), hata alarmı doğrulandı, Faz 3 doğrulaması bitti. Kalanlar:
 Looker Studio raporu (Ahmet'in Google hesabıyla, Claude rehberliğinde; BigQuery tarafı bu repoda) ve case
 study metni (portfolyo reposunda; malzeme `docs/validation-2026-10-08.md` ve README'deki tasarım
 kararları). VDOT geçmişi artık 5 yarış + 4 workout (2025-12-05 ve 2026-03-27 yapılandırılmış interval'ler
 de etiketlendi).
 
-**2026-10-09'un ilk işi:** Todoist'teki "Kod projelerini iCloud dışına taşı (~/Developer) + n8n için private
-GitHub reposu" task'ı — adımlar task açıklamasında. Taşıma sonrası bu dosyadaki ve hafızadaki
-`/Users/ahmetcanozdemir/Documents/Claude/...` yolları `~/Developer/...` olarak güncellenecek.
+**Konum (2026-10-10):** Kod projeleri iCloud dışına taşındı: `~/Developer/Training_Performance_Dashboard_Project`,
+`~/Developer/Portfolio_Website_Project`, `~/Developer/n8n_Project` (henüz boş, başlanmadı; private repo
+proje başlayınca açılacak). Yedek/senkron GitHub; Documents (iCloud) yalnız kod dışı belgeler için.
+iCloud'dan `mv` zaman aşımına uğradığı için kopyalanıp `diff -r` + `git fsck` ile doğrulandı. Taşıma
+sonrası pytest 75/75, vitest 38/38, ESLint (hata yok; 94 uyarının tamamı Impeccable'ın paketle gelen
+`.claude/skills/impeccable/scripts/` dosyalarında), `next build` başarılı.
 
 Bilinen ortam sorunları:
 - Git geçmişini yeniden yazan komutlar Claude Code auto mode'da engelli — gerekirse Ahmet kendisi çalıştırır
-- Documents klasörü iCloud'da ve "Mac depolamayı optimize et" açık: portfolyonun `node_modules`'ındaki
-  binlerce dosya yalnız bulutta duruyor, ESLint/derleme bu yüzden takılabiliyor (2026-10-08). Yayından önce
-  güvence Vercel'in kendi derlemesi; kalıcı çözüm Ahmet'in kararına bırakıldı
+- Training'de `git fsck` "missing tree 4b825dc…" (git'in boş ağacı) raporluyor; taşımadan önce de vardı, zararsız
 - Strava okuma limiti 100 istek / 15 dk, 1000 / gün: geniş taramalar `analysis/` script'leriyle yavaşlatılarak
   ve 23:30 gece çalışmasının penceresinden uzak çalıştırılmalı
