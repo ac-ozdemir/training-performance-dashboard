@@ -90,6 +90,10 @@ başvurularında gösterilecek uçtan uca bir BI/data engineering örneği.
     - **LTHR testi** (30 dk tam efor) tempo olarak okunuyor ve ~2.4 yüksek çıkıyor (53.2; 30 dk yarış
       olarak ≈ 50.8) — Ahmet'in kararıyla tempo olarak kalıyor, case study'de not edilecek
   - Aynı gün yarış ile workout çakışırsa yarış öncelikli
+  - VDOT üretmeyen seans örneği (2026-10-09): ısınma + ilk tekrar ayrı kayıt, kalan merdiven
+    (823/600/617/405/405 m, çoğu < 2.5 dk) ikinci kayıt → her kayıtta tek geçerli tekrar, VDOT yok. Kural
+    bilinçli: kısa tekrarlar vVO2max'tan hızlı koşulur, VDOT'u şişirir. Ahmet'e öneri: 3–5 dk'lık
+    tekrarlar, seans tek kayıt
   - Kural doğrulaması gerçek seanslarla yapıldı (`docs/validation-2026-10-08.md` §5): Ekim interval 50.9,
     tempo 51.7, son yarış 51.2 ile tutarlı
 - **Aktivite kategorileri:** Run/TrailRun/VirtualRun → koşu; HighIntensityIntervalTraining/Workout/
