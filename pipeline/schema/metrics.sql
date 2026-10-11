@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS `training_performance.metrics` (
   trimp_other FLOAT64,
   ctl FLOAT64,                  -- Chronic Training Load (42-day EWMA of daily_trimp)
   atl FLOAT64,                  -- Acute Training Load (7-day EWMA of daily_trimp)
-  tsb FLOAT64,                  -- Training Stress Balance (form): previous day's ctl - atl
-  vdot FLOAT64,                 -- from a race or an interval session that day, if any
-  vdot_source STRING,           -- race | interval
+  tsb FLOAT64,                  -- Training Stress Balance (form): same day's ctl - atl
+  vdot FLOAT64,                 -- from a race, interval or tempo session that day, if any
+  vdot_source STRING,           -- race | interval | tempo
   computed_at TIMESTAMP NOT NULL
 );

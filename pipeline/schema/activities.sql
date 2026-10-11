@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `training_performance.activities` (
   athlete_id STRING NOT NULL,
   name STRING,
   sport_type STRING,                 -- Run, TrailRun, HighIntensityIntervalTraining, ...
-  workout_type INT64,                -- 1 = race (set in Strava as run type "Race")
+  workout_type INT64,                -- 1 = race, 3 = workout (Strava run type)
   category STRING,                   -- run | crossfit | other
   start_date TIMESTAMP NOT NULL,     -- UTC
   start_date_local DATETIME,         -- athlete's wall-clock time
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `training_performance.activities` (
   max_speed FLOAT64,                 -- m/s
   total_elevation_gain FLOAT64,
   suffer_score FLOAT64,              -- Strava's Relative Effort, kept as a cross-check
-  laps ARRAY<STRUCT<                 -- only for runs titled "interval"; used for VDOT
+  laps ARRAY<STRUCT<                 -- only for runs tagged "Workout" in Strava; used for VDOT
     lap_index INT64,
     distance_m FLOAT64,
     moving_time_s INT64,
