@@ -138,7 +138,7 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
   (`docs/case-study-draft.md` birebir), Looker embed'i (masaüstünde iframe, mobilde önizleme görseli +
   yeni sekme linki; CSP frame-src), VDOT grafiğinde açılır "How points are chosen" notu (eşikler
   `pipeline/metrics/workouts.py` ile aynı — biri değişirse portfolyodaki
-  `charts/VdotSelectionNote.tsx` de güncellenir). Faz 3 Todoist'te kapandı; tek kalan README (ayrı task)
+  `charts/VdotSelectionNote.tsx` de güncellenir). Faz 3 Todoist'te kapandı. README (canlı linkler + ekran görüntüsü, `e6b2db3`) de tamam — **V1 bitti**
 - **V2 Backlog:** manuel wellness check-in + AI insight + Garmin-özel metrikler
 
 ## Hangi İş Hangi Klasörde (2026-10-04)
@@ -164,9 +164,8 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
 ## Bir Sonraki Oturum İçin Not (2026-10-11 gece)
 Pipeline canlı ve sağlıklı (482 aktivite). Faz 3 tamamlandı: doğrulama, Looker Studio raporu, raporun
 portfolyoya embed'i, case study metni ve VDOT notu yayında
-(`https://acozdemir.com/projects/training-performance-dashboard`). Kalan tek iş: README'ye proje
-sayfasının ekran görüntüsü + canlı link (Todoist: "README'ye dashboard ekran görüntüsü + canlı sayfa
-linki", bu repoda yapılır). Embed notları: Looker URL'leri portfolyoda `src/components/training/links.ts`'de,
+(`https://acozdemir.com/projects/training-performance-dashboard`). README de güncel (`docs/images/dashboard.jpg`;
+sayfa tasarımı belirgin değişirse yeniden çekilir). **V1 tamamlandı**; açık iş yok. Embed notları: Looker URL'leri portfolyoda `src/components/training/links.ts`'de,
 `hl=en` ile (tarihler İngilizce); Google `lookerstudio.google.com`'u `datastudio.google.com`'a
 yönlendiriyor. Rapor 1200 px'te ~1320 px yüksekliğinde; rapor sayfa boyutu değişirse portfolyodaki
 `LookerReport.tsx`'teki oran ve mobil önizleme görseli (`public/looker-report.jpg`) güncellenmeli.
