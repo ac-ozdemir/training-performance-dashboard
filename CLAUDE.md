@@ -134,7 +134,11 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
 - **Faz 3 — Doğrulama ve yayın:** ✅ doğrulama (TRIMP ↔ hrTSS, Garmin kıyası, Workout/tempo kuralları
   gerçek seanslarla — 2026-10-08). Aynı gece: Workout etiketi + tempo VDOT, aynı gün TSB, sayfada
   Fatigue göstergesi (yayında). ✅ Looker Studio raporu + BigQuery view'ları (2026-10-11).
-  ⏳ Raporun portfolyoya embed'i (portfolyo oturumu), VDOT açıklama notu, case study metni, README
+  ✅ Portfolyo tarafı (2026-10-11, portfolyo commit `2e1b3d6`, yayında): case study metni
+  (`docs/case-study-draft.md` birebir), Looker embed'i (masaüstünde iframe, mobilde önizleme görseli +
+  yeni sekme linki; CSP frame-src), VDOT grafiğinde açılır "How points are chosen" notu (eşikler
+  `pipeline/metrics/workouts.py` ile aynı — biri değişirse portfolyodaki
+  `charts/VdotSelectionNote.tsx` de güncellenir). Faz 3 Todoist'te kapandı; tek kalan README (ayrı task)
 - **V2 Backlog:** manuel wellness check-in + AI insight + Garmin-özel metrikler
 
 ## Hangi İş Hangi Klasörde (2026-10-04)
@@ -157,14 +161,16 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
 - **Güvenlik:** secret'lar sohbete/çıktıya basılmaz, komut satırı argümanına değil stdin'e verilir;
   yerel secret dosyaları `chmod 600`; public repoya push öncesi geçmişte secret taraması yapılır
 
-## Bir Sonraki Oturum İçin Not (2026-10-11 akşam)
-Pipeline canlı ve sağlıklı (482 aktivite), Faz 3 doğrulaması ve Looker Studio raporu bitti. Kalanlar:
-(1) portfolyo oturumunda Looker raporunu proje sayfasına embed (iframe; URL yukarıda "Looker Studio
-raporu" maddesinde, sandbox attribute'ları Looker'ın verdiği gibi) + VDOT "hangi aktiviteler sayılıyor"
-notu (taslak metin Todoist task'ında); (2) case study metni (portfolyo reposunda; malzeme
-`docs/validation-2026-10-08.md`, README'deki tasarım kararları, Looker'ın "aynı veri iki araçta" anlatısı);
-(3) README'ye ekran görüntüsü + canlı link. VDOT geçmişi artık 5 yarış + 4 workout (2025-12-05 ve 2026-03-27 yapılandırılmış interval'ler
-de etiketlendi).
+## Bir Sonraki Oturum İçin Not (2026-10-11 gece)
+Pipeline canlı ve sağlıklı (482 aktivite). Faz 3 tamamlandı: doğrulama, Looker Studio raporu, raporun
+portfolyoya embed'i, case study metni ve VDOT notu yayında
+(`https://acozdemir.com/projects/training-performance-dashboard`). Kalan tek iş: README'ye proje
+sayfasının ekran görüntüsü + canlı link (Todoist: "README'ye dashboard ekran görüntüsü + canlı sayfa
+linki", bu repoda yapılır). Embed notları: Looker URL'leri portfolyoda `src/components/training/links.ts`'de,
+`hl=en` ile (tarihler İngilizce); Google `lookerstudio.google.com`'u `datastudio.google.com`'a
+yönlendiriyor. Rapor 1200 px'te ~1320 px yüksekliğinde; rapor sayfa boyutu değişirse portfolyodaki
+`LookerReport.tsx`'teki oran ve mobil önizleme görseli (`public/looker-report.jpg`) güncellenmeli.
+VDOT geçmişi 5 yarış + 4 workout.
 
 **Konum (2026-10-10):** Kod projeleri iCloud dışına taşındı: `~/Developer/Training_Performance_Dashboard_Project`,
 `~/Developer/Portfolio_Website_Project`, `~/Developer/n8n_Project` (henüz boş, başlanmadı; private repo
