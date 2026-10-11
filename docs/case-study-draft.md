@@ -34,9 +34,7 @@ calls it running fitness rather than VO2max.
 Automatic 1 km laps looked like intervals and had to be filtered out; requiring at least 90% of
 lactate-threshold heart rate separates real interval work from steady running. Short reps are left
 out on purpose: 400–800 m repeats are run faster than VO2max pace and would inflate the estimate.
-My 30-minute threshold test passes the tempo rules but reads about 2.4 points high, because a
-30-minute all-out effort is scored as one-hour pace; I kept it and say so here rather than add a
-special case. A single 210 bpm reading on a HIIT session was an optical-sensor spike, so maximum
+A single 210 bpm reading on a HIIT session was an optical-sensor spike, so maximum
 heart rate is set from the highest plausible value instead.
 
 ## The same data in Looker Studio — YENİ

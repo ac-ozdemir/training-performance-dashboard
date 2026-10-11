@@ -101,7 +101,8 @@ başvurularında gösterilecek uçtan uca bir BI/data engineering örneği.
     - **Tempo:** hızlı gruptaki 10–40 dk'lık blok(lar), toplam ≥ 15 dk, zaman ağırlıklı nabız ≥ %95 LTHR
       (~157); T tempo = 60 dk yarış temposu sayılır. Isınmadaki otomatik km lap'leri tempo'yu elemez
     - **LTHR testi** (30 dk tam efor) tempo olarak okunuyor ve ~2.4 yüksek çıkıyor (53.2; 30 dk yarış
-      olarak ≈ 50.8) — Ahmet'in kararıyla tempo olarak kalıyor, case study'de not edilecek
+      olarak ≈ 50.8) — Ahmet'in kararıyla tempo olarak kalıyor; case study'ye yazılmadı (2026-10-11,
+      Ahmet: gereksiz detay)
   - Aynı gün yarış ile workout çakışırsa yarış öncelikli
   - VDOT üretmeyen seans örneği (2026-10-09): ısınma + ilk tekrar ayrı kayıt, kalan merdiven
     (823/600/617/405/405 m, çoğu < 2.5 dk) ikinci kayıt → her kayıtta tek geçerli tekrar, VDOT yok. Kural
