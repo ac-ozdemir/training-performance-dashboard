@@ -5,8 +5,14 @@ Activities are ingested daily into BigQuery, sports-science load and fitness met
 Python, and a small pre-aggregated JSON feeds a dashboard page on my
 [portfolio site](https://github.com/ac-ozdemir/portfolio-website).
 
-> **Status:** the pipeline runs daily in production (ingestion → BigQuery → metrics → public JSON).
-> The dashboard page on the portfolio site is in progress.
+**Live dashboard:** [acozdemir.com/projects/training-performance-dashboard](https://acozdemir.com/projects/training-performance-dashboard)
+· **Looker Studio report:** [same data, second presentation layer](https://datastudio.google.com/embed/reporting/6343fec2-11d3-4128-ac04-129ab38a34d7/page/su2AG)
+
+> **Status:** in production since October 2026. The pipeline runs nightly; the metrics have been
+> validated against an independent load model and real sessions
+> ([validation notes](docs/validation-2026-10-08.md)).
+
+![Dashboard page: current form, fitness, fatigue and VDOT, the form and fitness chart and weekly load](docs/images/dashboard.jpg)
 
 ## Architecture
 
@@ -18,7 +24,7 @@ flowchart LR
     F -->|full snapshot load| BQ[(BigQuery<br/>activities, metrics)]
     F -->|aggregated export| J[dashboard.json<br/>Cloud Storage]
     J --> D[Next.js dashboard<br/>portfolio site]
-    BQ --> L[Looker Studio]
+    BQ -->|reporting views| L[Looker Studio report]
 ```
 
 Runs entirely on Google Cloud's free tier. The dashboard reads a static, pre-aggregated JSON file, so
@@ -41,17 +47,24 @@ Design choices worth calling out:
 | --- | --- | --- |
 | TRIMP | Banister's exponential training impulse, from session duration and average heart rate | [`trimp.py`](pipeline/metrics/trimp.py) |
 | CTL / ATL / TSB | Performance Management Chart: 42- and 7-day exponentially weighted load, form = the same day's CTL − ATL (fitness minus fatigue) | [`training_load.py`](pipeline/metrics/training_load.py), [`daily.py`](pipeline/metrics/daily.py) |
-| VDOT (VO2max estimate) | Daniels & Gilbert, from races and from interval reps | [`vdot.py`](pipeline/metrics/vdot.py), [`intervals.py`](pipeline/metrics/intervals.py) |
+| Running fitness (VDOT) | Daniels & Gilbert, from races, interval reps and tempo blocks | [`vdot.py`](pipeline/metrics/vdot.py), [`workouts.py`](pipeline/metrics/workouts.py) |
 
-All metric functions are pure and unit-tested. Caveats, stated rather than hidden:
+All metric functions are pure and unit-tested. TRIMP was cross-checked against heart-rate TSS (a
+lactate-threshold-based load model): r = 0.955 per activity, and the two models put 88% of days in
+the same form zone ([validation notes](docs/validation-2026-10-08.md)). Caveats, stated rather than
+hidden:
 
 - TRIMP was designed for endurance sessions; for CrossFit/HIIT it is an approximation.
 - Activities without heart-rate data count as zero load. Heart rate is only recorded consistently
   from November 2025, so the load series starts there, seeded with the opening period's mean load.
-- Interval VDOT only uses manually lapped sessions (automatic 1 km splits are ignored), reps of
-  2.5–6 minutes, run at ≥ 90% of lactate-threshold heart rate. It assumes interval pace ≈ velocity
-  at VO2max. A race counts only when tagged as a race in Strava, which is reserved for races
-  actually run all-out.
+- VDOT points come only from runs I tag in Strava: *Race* (reserved for races actually run
+  all-out) and *Workout*. A workout counts only if its laps and heart rate show the effort:
+  intervals need at least two reps of 2.5–6 minutes at ≥ 90% of lactate-threshold heart rate
+  (interval pace ≈ velocity at VO2max); tempo needs at least 15 minutes in 10–40-minute blocks at
+  ≥ 95% (threshold pace ≈ one-hour race pace). Sessions on automatic 1 km laps and shorter reps are
+  left out because they would overstate fitness.
+- VDOT is a performance-based estimate, so it is labelled "running fitness", not VO2max. Garmin's
+  physiological VO2max reads about 3 points higher after the same race.
 
 ## Repository layout
 
@@ -63,7 +76,9 @@ pipeline/
   metrics/      pure metric functions (no I/O)
   warehouse/    BigQuery reads and snapshot loads
   export/       public dashboard.json builder and publisher
-  schema/       BigQuery DDL
+  schema/       BigQuery DDL and the Looker Studio reporting views
+  alerting/     Cloud Monitoring alert on pipeline failures
+  analysis/     validation and one-off analysis scripts
   scripts/      local one-off runs
   tests/        pytest suite
   deploy.sh     deploy function + scheduler (idempotent)
@@ -102,4 +117,7 @@ Scheduler job that triggers it nightly.
 
 - GPS / route data is never stored — the schema deliberately omits polylines and coordinates.
 - Only the author's own activity data is processed.
+- Public outputs carry no activity names or ids (race names excepted). The Looker Studio report
+  connects only to reporting views that expose those safe columns, never to the base tables, and
+  viewers cannot download its data.
 - Data provided by Strava. Powered by Strava.
