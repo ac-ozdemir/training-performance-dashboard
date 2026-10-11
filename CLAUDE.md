@@ -57,6 +57,19 @@ başvurularında gösterilecek uçtan uca bir BI/data engineering örneği.
   "Powered by Strava" ibaresi zorunlu (Strava API şartı)
 - **Faz 3 sunum katmanı:** Looker Studio (owner's credentials, ham veri kapalı). Tableau Public bu
   projenin parçası değil — ayrı "Tableau hands-on" task'ı, V1 sonrası
+- **Looker Studio raporu (2026-10-11):** "Training Performance – Looker Studio", Ahmet'in hesabında.
+  Embed URL: `https://datastudio.google.com/embed/reporting/6343fec2-11d3-4128-ac04-129ab38a34d7/page/su2AG`.
+  Yalnızca `pipeline/schema/reporting_views.sql`'deki view'lara bağlı (`rpt_daily_load`, `rpt_activities`,
+  `rpt_vdot`; id/ad yok, sadece yarış adları), ham tablolara asla. Veri kaynakları "TPD – Daily load /
+  Activities / VDOT", sahibin kimlik bilgileri, raporlarda alan düzenleme kapalı; durum değerleri
+  (CTL/ATL/TSB, nabız, pace, VDOT) Ortalama, yük/mesafe/süre Toplam. Hesaplanmış alanlar veri kaynağında:
+  `training_hours`, `avg_pace` (ağırlıklı). Bağlantıya sahip herkes görüntüler, indirme/kopyalama kapalı;
+  oturumsuz tarayıcıda doğrulandı. Kartlar seçili dönemin özeti (bilinçli: "güncel" değer filtreyle
+  çelişir, güncel durum sayfada). Varsayılan tarih: 2025-11-01 → bugün (kontrolün sağ panel ayarı;
+  takvimden seçmek varsayılanı değiştirmez). VDOT grafiği/tablosu kendi aralığında (2025-01-01 → bugün)
+  ki 2025 yarışları görünsün. Renkler portfolyonun veri renkleri (run `#16709C`, CrossFit `#C0672B`,
+  other `#8F897F`), arka plan `#FAF9F6`. Looker zaman serisinde nokta boyutu ayarlanamıyor → VDOT
+  kaynak başına doğrusal enterpolasyonlu çizgi
 - **GitHub:** `ac-ozdemir/training-performance-dashboard` (public)
 - **Public JSON gizliliği:** aktivite adları ve id'leri yayımlanmaz (konum/kişisel bilgi sızdırabilir);
   sadece yarış adları VDOT noktalarında etiket olarak çıkar
@@ -119,7 +132,8 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
   alarmı kuruldu ve 2026-10-08'de uçtan uca doğrulandı (`pipeline/alerting/`)
 - **Faz 3 — Doğrulama ve yayın:** ✅ doğrulama (TRIMP ↔ hrTSS, Garmin kıyası, Workout/tempo kuralları
   gerçek seanslarla — 2026-10-08). Aynı gece: Workout etiketi + tempo VDOT, aynı gün TSB, sayfada
-  Fatigue göstergesi (yayında). ⏳ Looker Studio embed, case study metni
+  Fatigue göstergesi (yayında). ✅ Looker Studio raporu + BigQuery view'ları (2026-10-11).
+  ⏳ Raporun portfolyoya embed'i (portfolyo oturumu), VDOT açıklama notu, case study metni, README
 - **V2 Backlog:** manuel wellness check-in + AI insight + Garmin-özel metrikler
 
 ## Hangi İş Hangi Klasörde (2026-10-04)
@@ -142,11 +156,13 @@ Kaynak: Todoist → "Side Projects" → **"Training Performance Dashboard"** sec
 - **Güvenlik:** secret'lar sohbete/çıktıya basılmaz, komut satırı argümanına değil stdin'e verilir;
   yerel secret dosyaları `chmod 600`; public repoya push öncesi geçmişte secret taraması yapılır
 
-## Bir Sonraki Oturum İçin Not (2026-10-08 akşam, konum 2026-10-10)
-Pipeline canlı ve sağlıklı (479 aktivite), hata alarmı doğrulandı, Faz 3 doğrulaması bitti. Kalanlar:
-Looker Studio raporu (Ahmet'in Google hesabıyla, Claude rehberliğinde; BigQuery tarafı bu repoda) ve case
-study metni (portfolyo reposunda; malzeme `docs/validation-2026-10-08.md` ve README'deki tasarım
-kararları). VDOT geçmişi artık 5 yarış + 4 workout (2025-12-05 ve 2026-03-27 yapılandırılmış interval'ler
+## Bir Sonraki Oturum İçin Not (2026-10-11 akşam)
+Pipeline canlı ve sağlıklı (482 aktivite), Faz 3 doğrulaması ve Looker Studio raporu bitti. Kalanlar:
+(1) portfolyo oturumunda Looker raporunu proje sayfasına embed (iframe; URL yukarıda "Looker Studio
+raporu" maddesinde, sandbox attribute'ları Looker'ın verdiği gibi) + VDOT "hangi aktiviteler sayılıyor"
+notu (taslak metin Todoist task'ında); (2) case study metni (portfolyo reposunda; malzeme
+`docs/validation-2026-10-08.md`, README'deki tasarım kararları, Looker'ın "aynı veri iki araçta" anlatısı);
+(3) README'ye ekran görüntüsü + canlı link. VDOT geçmişi artık 5 yarış + 4 workout (2025-12-05 ve 2026-03-27 yapılandırılmış interval'ler
 de etiketlendi).
 
 **Konum (2026-10-10):** Kod projeleri iCloud dışına taşındı: `~/Developer/Training_Performance_Dashboard_Project`,
